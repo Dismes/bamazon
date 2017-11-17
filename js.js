@@ -39,11 +39,12 @@ function afterConnection() {
     });
 }
 var buying;
+var amount;
+var price;
+var BuyingChoiceAmount;
+var which;
 
 function whatTOBuy(res) {
-   
-    var amount;
-
     inquirer.prompt([{
         type: 'list',
         name: 'Item',
@@ -56,7 +57,6 @@ function whatTOBuy(res) {
         },
         message: 'What do like to buy?'
     }]).then(function (answers) {
-        console.log(JSON.stringify(answers, null, '  '));
         buying = answers;
         console.log(buying.Item);
         return res;
@@ -64,28 +64,49 @@ function whatTOBuy(res) {
 }
 
 function hello(res) {
+    console.log("hello");
     console.log(buying.Item);
     inquirer.prompt([{
         type: 'list',
         name: 'Amount',
         choices: function () {
             var choiceArray = [];
-            var BuyingChoiceAmount;
+        
+            for (i = 0; i < res.length; i++) {
 
-            for (var i = 0; i < res.length; i++) {
-               
                 if (buying.Item === res[i].product_name) {
                     console.log("fouind");
-                    BuyingChoiceAmount = res[i].amount;
+                    console.log(res[i].quantity);
+                    BuyingChoiceAmount = res[i].quantity;
+                    price = res[i].price;
+                    console.log(price);
+                    console.log(BuyingChoiceAmount);
+                    which = i;
                 }
             }
-            for (var i = 0; i < BuyingChoiceAmount; i++) {
-                choiceArray.push(i);
+            for (i = 0; i < BuyingChoiceAmount + 1; i++) {
+                console.log("chciearray");
+                choiceArray.push("" + i);
             }
             return choiceArray
         },
         message: "How many would you like to buy"
-    }]).then(function(answers){
-        console.log("thest");
-    })
+    }]).then(function (answers) {
+        console.log(answers.Amount);
+        amount = parseInt(answers.Amount);
+        console.log(amount);
+    }).then(calculatePrice);
 };
+
+function calculatePrice() {
+    console.log("So you bought " + amount + " " + buying.Item + " for a total of " + (amount * price) + "dollars");
+    console.log("Thanks for doing business");
+    var query = connection.query([{
+        quantity: BuyingChoiceAmount -  amount
+    }, {
+        product_name: buying.Item
+    }])
+
+    console.log("no");
+    
+}
